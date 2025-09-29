@@ -27,10 +27,13 @@ public class AuthenticationService implements UserDetailsService {
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationService(AuthenticationRepository authenticationRepository, PasswordEncoder passwordEncoder,@Lazy AuthenticationManager authenticationManager) {
+    private final TokenService tokenService;
+
+    public AuthenticationService(AuthenticationRepository authenticationRepository, PasswordEncoder passwordEncoder, @Lazy AuthenticationManager authenticationManager, TokenService tokenService) {
         this.authenticationRepository = authenticationRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.tokenService = tokenService;
     }
 
     public RegisterResponse register(RegisterRequest registerRequest) {
@@ -67,12 +70,23 @@ public class AuthenticationService implements UserDetailsService {
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            Account account = (Account) authentication.getPrincipal();
             if (userDetails == null) {
                 throw new BadRequestException("User details not found");
             }
-            Account account = authenticationRepository.findByEmail(userDetails.getUsername())
+            Account oldAccount = authenticationRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new BadRequestException("User not found"));
-            return new LoginResponse(account.getId(), account.getFullName(), account.getPhone(), account.getEmail(), account.getRole());
+
+             LoginResponse loginResponse = new LoginResponse();
+                loginResponse.setId(oldAccount.getId());
+                loginResponse.setFullName(oldAccount.getFullName());
+                loginResponse.setPhone(oldAccount.getPhone());
+                loginResponse.setEmail(oldAccount.getEmail());
+                loginResponse.setRole(oldAccount.getRole());
+                loginResponse.setToken(tokenService.generateToken(account));
+
+            return loginResponse;
+
         } catch (Exception e) {
             throw new BadRequestException("Invalid email or password");
         }

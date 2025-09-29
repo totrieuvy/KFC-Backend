@@ -28,4 +28,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleBadRequestException(BadRequestException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<String> handleBadRequestException(AuthException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 }
