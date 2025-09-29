@@ -51,12 +51,20 @@ public class Filter extends OncePerRequestFilter {
         return authHeader.substring(7);
     }
 
-    public boolean checkIsPublicAPI(String uri){
-        //nếu gặp uri ở trên(cho phép truy cập) => return true;
-        //uri cần token => return false;
+    public boolean checkIsPublicAPI(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String method = request.getMethod(); // GET, POST, PUT, DELETE
         AntPathMatcher patchMatch = new AntPathMatcher();
+
+        // cho phép GET /api/categories (không cần token)
+        if ("GET".equalsIgnoreCase(method) && patchMatch.match("/api/products", uri)) {
+            return true;
+        }
+
+        // các public API khác
         return AUTH_PERMISSION.stream().anyMatch(pattern -> patchMatch.match(pattern, uri));
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -64,7 +72,7 @@ public class Filter extends OncePerRequestFilter {
 //        filterChain.doFilter(request, response);
 
         //check api ng dùng yêu cầu có phải là 1 public api k?
-        boolean isPublicAPI = checkIsPublicAPI(request.getRequestURI());
+        boolean isPublicAPI = checkIsPublicAPI(request);
 
         if(isPublicAPI) { //ko cần token vẫn truy cập dc
             filterChain.doFilter(request, response);
