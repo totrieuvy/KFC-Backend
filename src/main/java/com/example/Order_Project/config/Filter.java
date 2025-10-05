@@ -38,7 +38,8 @@ public class Filter extends OncePerRequestFilter {
             "/swagger-resources/**",
             "/swagger-ui/index.html",
             "/api/login",
-            "/api/register"
+            "/api/register",
+            "/api/refresh-token"
     );
 
 
