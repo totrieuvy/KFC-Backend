@@ -126,4 +126,7 @@ public class Account implements UserDetails {
     public void setRole(RoleEnum role) {
         this.role = role;
     }
+
+    @OneToMany(mappedBy = "account")
+    private List<Order> orders;
 }
