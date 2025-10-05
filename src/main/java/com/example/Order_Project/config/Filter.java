@@ -33,11 +33,14 @@ public class Filter extends OncePerRequestFilter {
 
     private final List<String> AUTH_PERMISSION = List.of(
             "/swagger-ui/**",
+            "/swagger-ui.html",
             "/v3/api-docs/**",
             "/swagger-resources/**",
+            "/swagger-ui/index.html",
             "/api/login",
             "/api/register"
     );
+
 
     public Filter(TokenService tokenService) {
         this.tokenService = tokenService;
